@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "id": "3f32fc8f-3037-4cad-eb76-45e61750ff8a",
+    "detail-type": "Scheduled Event",
+    "source": "aws.events",
+    "account": "408867156064",
+    "time": "2022-11-16T18:40:00Z",
+    "region": "us-east-1",
+    "resources": [
+        "arn:aws:events:us-east-1:408867156064:rule/sam-app-CronFunctionInvocationLevel-1OOF4EIZWUM87"
+    ],
+    "detail": {}
+}
