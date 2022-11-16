@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app
+
+  Sample SAM Template for sam-app
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    Tracing: Active
+
+Resources:
+  # Define the SQS queue
+  MySqsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: "lambda-test"
+
+  # Define the consumer Lambda function
+  QueueConsumerFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: queue-app/
+      Handler: app.handler
+      Runtime: nodejs16.x
+      Timeout: 25
+      MemorySize: 128
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt MySqsQueue.Arn
+            BatchSize: 10
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+        EntryPoints: 
+        - src/app.ts
+
+    # Define the cron Lambda function
+  CronFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: cron-app/
+      Handler: app.handler
+      Runtime: nodejs16.x
+      Timeout: 25
+      MemorySize: 128
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref MySqsQueue
+      Events:
+        InvocationLevel:
+          Type: Schedule
+          Properties:
+            # Schedule: cron(0/5 8-17 ? * MON-FRI *)
+            Schedule: cron(0/5 * ? * MON-FRI *)
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+        EntryPoints: 
+        - src/app.ts
+
+Outputs:
+  QueueConsumerFunction:
+    Description: QueueConsumerFunction function name
+    Value: !Ref QueueConsumerFunction
+  
+  SQSqueueName:
+    Description: SNS queue name
+    Value: !GetAtt MySqsQueue.QueueName
+
+  SQSqueueARN:
+    Description: SQS queue ARN
+    Value: !GetAtt MySqsQueue.Arn
+
+  SQSqueueURL:
+    Description: SQS queue URL
+    Value: !Ref MySqsQueue
