@@ -10,3 +10,5 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
 image_repositories = []
+[default.global.parameters]
+container_env_var_file = "env.json"

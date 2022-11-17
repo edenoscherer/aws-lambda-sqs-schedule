@@ -11,6 +11,10 @@ Globals:
     Timeout: 3
     Tracing: Active
 
+Parameters:
+  MongoUrl:
+    Type: String
+
 Resources:
   # Define the SQS queue
   MySqsQueue:
@@ -49,17 +53,22 @@ Resources:
       CodeUri: cron-app/
       Handler: app.handler
       Runtime: nodejs16.x
-      Timeout: 25
+      Timeout: 250
       MemorySize: 128
       Environment:
         Variables:
           QUEUE_URL: !Ref MySqsQueue
+          MONGO_URL: !Ref MongoUrl
+      Policies:
+        ## Read more about SAM Policy templates at:
+        ## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt MySqsQueue.QueueName
       Events:
         InvocationLevel:
           Type: Schedule
           Properties:
-            # Schedule: cron(0/5 8-17 ? * MON-FRI *)
-            Schedule: cron(0/5 * ? * MON-FRI *)
+            Schedule: cron(5 8-21 ? * MON-FRI *)
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -68,6 +77,8 @@ Resources:
         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
         EntryPoints: 
         - src/app.ts
+        External: 
+          - 'aws-sdk'
 
 Outputs:
   QueueConsumerFunction:
