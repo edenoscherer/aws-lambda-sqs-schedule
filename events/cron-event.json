@@ -5,9 +5,9 @@
     "source": "aws.events",
     "account": "408867156064",
     "time": "2022-11-16T18:40:00Z",
-    "region": "us-east-1",
+    "region": "sa-east-1",
     "resources": [
-        "arn:aws:events:us-east-1:408867156064:rule/sam-app-CronFunctionInvocationLevel-1OOF4EIZWUM87"
+        "arn:aws:events:sa-east-1:408867156064:rule/sam-app-CronFunctionInvocationLevel-1OOF4EIZWUM87"
     ],
     "detail": {}
 }

@@ -96,3 +96,7 @@ Outputs:
   SQSqueueURL:
     Description: SQS queue URL
     Value: !Ref MySqsQueue
+
+  MongoUrl:
+    Description: MongoDB URL
+    Value: !Ref MongoUrl

@@ -1,14 +1,14 @@
 version = 0.1
 [default]
+[default.global.parameters]
+container_env_var_file = "env.json"
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "sam-app"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1vp5673wl47f"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-f2wvynv3uriy"
 s3_prefix = "sam-app"
-region = "us-east-1"
+region = "sa-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
 image_repositories = []
-[default.global.parameters]
-container_env_var_file = "env.json"
