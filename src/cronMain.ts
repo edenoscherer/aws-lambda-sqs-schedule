@@ -1,6 +1,6 @@
 import { ScheduledEvent } from 'aws-lambda';
 import { SQS } from 'aws-sdk';
-import { DatabaseConnection } from './DatabaseConnection';
+import { DatabaseConnection } from './infra/DatabaseConnection';
 
 export const handler = async (event: ScheduledEvent) => {
     console.log(JSON.stringify(event, null, 2));

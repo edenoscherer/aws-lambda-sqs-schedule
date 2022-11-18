@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",
-    "@types/aws-sdk": "^2.7.0",
     "@types/node": "^17.0.13",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
+    "aws-sdk": "^2.1257.0",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

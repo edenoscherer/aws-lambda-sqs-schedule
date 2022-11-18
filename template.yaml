@@ -8,8 +8,14 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 25
     Tracing: Active
+    Runtime: nodejs16.x
+    MemorySize: 128
+    Environment:
+      Variables:
+        QUEUE_URL: !Ref MySqsQueue
+        MONGO_URL: !Ref MongoUrl
 
 Parameters:
   MongoUrl:
@@ -26,11 +32,7 @@ Resources:
   QueueConsumerFunction:
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: queue-app/
-      Handler: app.handler
-      Runtime: nodejs16.x
-      Timeout: 25
-      MemorySize: 128
+      Handler: sqsQueueMail.handler
       Events:
         MySQSEvent:
           Type: SQS
@@ -40,45 +42,58 @@ Resources:
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
-        Minify: true
+        Minify: false
         Target: "es2020"
         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
         EntryPoints: 
-        - src/app.ts
+        - src/sqsQueueMail.ts
 
     # Define the cron Lambda function
-  CronFunction:
+  CronMain:
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: cron-app/
-      Handler: app.handler
-      Runtime: nodejs16.x
-      Timeout: 250
-      MemorySize: 128
-      Environment:
-        Variables:
-          QUEUE_URL: !Ref MySqsQueue
-          MONGO_URL: !Ref MongoUrl
+      Handler: cronMain.handler
       Policies:
-        ## Read more about SAM Policy templates at:
-        ## https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
         - SQSSendMessagePolicy:
             QueueName: !GetAtt MySqsQueue.QueueName
       Events:
         InvocationLevel:
           Type: Schedule
           Properties:
-            Schedule: cron(5 8-21 ? * MON-FRI *)
+            # Schedule: cron(5 6 ? * MON-FRI *)
+            Schedule: cron(0/10 * ? * MON-FRI *)
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
-        Minify: true
+        Minify: false
         Target: "es2020"
-        # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
         EntryPoints: 
-        - src/app.ts
+        - src/cronMain.ts
         External: 
           - 'aws-sdk'
+
+  CronScheduleMails:
+    Type: AWS::Serverless::Function 
+    Properties:
+      Handler: cronScheduleMails.handler
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt MySqsQueue.QueueName
+      Events:
+        InvocationLevel:
+          Type: Schedule
+          Properties:
+            # Schedule: cron(5 8-21 ? * MON-FRI *)
+            Schedule: cron(0/10 * ? * MON-FRI *)
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        EntryPoints: 
+        - src/cronScheduleMails.ts
+        External: 
+          - 'aws-sdk'          
 
 Outputs:
   QueueConsumerFunction:
